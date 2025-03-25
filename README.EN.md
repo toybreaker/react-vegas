@@ -20,7 +20,6 @@ English | [简体中文](./README.md)
 
 ## Installation
 
-
 npm
 
 ```bash
@@ -39,11 +38,10 @@ pnpm
 pnpm add react-vegas
 ```
 
-
 ## Basic Usage
 
 ```tsx
-import Vegas from '@your-org/vegas-slideshow';
+import {Vegas} from "react-vegas";
 
 const App = () => {
 	const slides = [

@@ -40,7 +40,7 @@ pnpm add react-vegas
 ## 基础用法
 
 ```tsx
-import Vegas from '@your-org/vegas-slideshow';
+import {Vegas} from "react-vegas";
 
 const App = () => {
 	const slides = [
