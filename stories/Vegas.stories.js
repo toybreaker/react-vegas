@@ -5,11 +5,17 @@ const meta = {
 	component: Vegas,
 	decorators: [
 		(Story) => (
-			<div style={{width: '100vw', height: '100vh'}}>
+			<div style={{height: '100vh'}}>
 				<Story/>
 			</div>
 		),
 	],
+	parameters: {
+		layout: 'fullscreen',
+		viewport: {
+			defaultViewport: 'responsive',
+		}
+	}
 };
 
 // 使用外链图片
