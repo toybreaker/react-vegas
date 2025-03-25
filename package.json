@@ -5,6 +5,10 @@
   "description": "Vegas.js for React",
   "author": "Dracowyn",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dracowyn/react-vegas.git"
+  },
   "keywords": [
     "react",
     "components",
