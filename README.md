@@ -1,6 +1,6 @@
 # React Vegas 幻灯片组件
 
-基于 [Vegas Background SlideShow](https://github.com/jaysalvat/vegas) 实现的React组件，提供强大灵活的幻灯片展示功能，支持图片和视频，具有平滑过渡效果和可定制化功能。
+参考 [Vegas Background SlideShow](https://github.com/jaysalvat/vegas) 实现的React组件，提供强大灵活的幻灯片展示功能，支持图片和视频，具有平滑过渡效果和可定制化功能。
 
 简体中文 | [English](./README.EN.md)
 
