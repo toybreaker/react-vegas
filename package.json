@@ -15,13 +15,20 @@
   ],
   "scripts": {
     "build": "rslib build",
-    "dev": "rslib build --watch"
+    "dev": "rslib build --watch",
+    "storybook": "storybook dev"
   },
   "devDependencies": {
+    "@rsbuild/core": "^1.2.19",
     "@rsbuild/plugin-react": "^1.1.1",
     "@rslib/core": "^0.5.5",
+    "@storybook/addon-essentials": "^8.6.9",
+    "@storybook/test": "^8.6.9",
     "@types/react": "^19.0.12",
     "react": "^19.0.0",
+    "storybook": "^8.6.9",
+    "storybook-addon-rslib": "^1.0.1",
+    "storybook-react-rsbuild": "^1.0.1",
     "typescript": "^5.8.2"
   },
   "peerDependencies": {
