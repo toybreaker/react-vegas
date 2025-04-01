@@ -7,6 +7,7 @@ import {VegasOverlay} from "./components/VegasOverlay";
 import {VegasDefaultBackground} from "./components/VegasDefaultBackground";
 import {VegasSlide} from "./components/VegasSlide";
 import {useLogger} from "./hooks/useLogger";
+import {usePreload} from "./hooks/usePreload";
 import {useAnimationVariants} from "./hooks/useAnimationVariants";
 
 type Logger = (message: string, ...args: unknown[]) => void;
@@ -55,7 +56,7 @@ export const Vegas = React.forwardRef<{
 	const [currentOrderIndex, setCurrentOrderIndex] = useState(0);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 	const [visibleSlides, setVisibleSlides] = useState([slide]);
-	const [loading, setLoading] = useState(false);
+	const [, setLoading] = useState(false);
 	const [showDefaultBg, setShowDefaultBg] = useState(true);
 	const [isFirstTransition, setIsFirstTransition] = useState(true);
 	const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
@@ -64,6 +65,10 @@ export const Vegas = React.forwardRef<{
 	// 日志函数
 	const { log, logWarn, logError } = useLogger(debug);
 	const containerRef = useRef<HTMLDivElement>(null);
+
+	// 预加载资源
+	const { loading, loadProgress, loadedImages, batchPreloadImages } =
+		usePreload(slides, preloadImage, preloadVideo, preLoadImageBatch, log, logWarn, logError);
 
 	// 动画变体配置
 	const { variants } = useAnimationVariants(transitionDuration);
@@ -288,35 +293,6 @@ export const Vegas = React.forwardRef<{
 			document.removeEventListener("visibilitychange", handleVisibilityChange);
 		};
 	}, [play, pause]);
-
-	// 批量预加载图片
-	const batchPreloadImages = useCallback(async () => {
-		if (!preloadImage) return;
-
-		const batchSize = preLoadImageBatch;
-		const imageSlides = slides.filter(slide => !slide.video);
-
-		for (let i = 0; i < imageSlides.length; i += batchSize) {
-			const batch = imageSlides.slice(i, i + batchSize);
-			const promises = batch.map(slide => {
-				return new Promise<void>((resolve) => {
-					const img = new Image();
-					img.onload = () => {
-						setLoadedImages(prev => ({...prev, [slide.src]: true}));
-						resolve();
-					};
-					img.onerror = () => {
-						logWarn(`图片加载失败: ${slide.src}`);
-						resolve();
-					};
-					img.src = slide.src;
-				});
-			});
-
-			await Promise.all(promises);
-			setLoadProgress(Math.min(100, Math.floor(((i + batch.length) / imageSlides.length) * 100)));
-		}
-	}, [slides, preloadImage]);
 
 	// 渲染幻灯片
 	const renderSlide = useCallback((index: number) => {
