@@ -10,6 +10,7 @@ interface VegasProps {
 	preloadImage?: boolean;           // 是否预加载图片
 	preLoadImageBatch?: number;       // 批量预加载图片数量
 	preloadVideo?: boolean;           // 是否预加载视频
+	showLoading?: boolean;            // 是否显示加载指示器
 	timer?: boolean;                  // 是否显示计时器
 	overlay?: boolean;                // 是否显示遮罩层
 	autoplay?: boolean;               // 是否自动播放
@@ -67,6 +68,7 @@ export const Vegas = React.forwardRef<{
 		preLoadImageBatch = 3,
 		preloadVideo = false,
 		timer = true,
+		showLoading = false,
 		overlay = false,
 		autoplay = true,
 		shuffle = false,
@@ -590,7 +592,35 @@ export const Vegas = React.forwardRef<{
 			)}
 
 			{/* 加载指示器 */}
-			{loading && <div className="loading-indicator">加载中...</div>}
+			{showLoading && loading && (
+				<div style={{
+					position: "absolute",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-50%, -50%)",
+					textAlign: "center",
+					color: "#fff",
+					zIndex: 10,
+					backgroundColor: "rgba(0,0,0,0.5)",
+					padding: "20px",
+					borderRadius: "8px"
+				}}>
+					<div>加载中... {loadProgress}%</div>
+					<div style={{
+						width: "200px",
+						height: "5px",
+						backgroundColor: "rgba(255,255,255,0.3)",
+						marginTop: "10px"
+					}}>
+						<div style={{
+							width: `${loadProgress}%`,
+							height: "100%",
+							backgroundColor: "#fff",
+							transition: "width 0.3s"
+						}}></div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 });
