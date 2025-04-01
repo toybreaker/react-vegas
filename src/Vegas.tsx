@@ -102,7 +102,8 @@ export const Vegas = React.forwardRef<{
 	// 状态管理
 	const [currentSlide, setCurrentSlide] = useState(slide);
 	const [isPlaying, setIsPlaying] = useState(autoplay);
-	const [, setSlideOrder] = useState<number[]>([]);
+	const [slideOrder, setSlideOrder] = useState<number[]>([]);
+	const [currentOrderIndex, setCurrentOrderIndex] = useState(0);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 	const [visibleSlides, setVisibleSlides] = useState([slide]);
 	const [loading, setLoading] = useState(false);
@@ -185,6 +186,14 @@ export const Vegas = React.forwardRef<{
 	const play = useCallback(() => {
 		log("开始播放幻灯片");
 		setIsPlaying(true);
+		if (isFirstTransition && showDefaultBg) {
+			logWarn("默认背景显示中，等待动画完成");
+			setTimeout(() => {
+				setShowDefaultBg(false);
+				log("默认背景隐藏");
+			}, transitionDuration);
+			setIsFirstTransition(false);
+		}
 		onPlay?.();
 	}, [onPlay]);
 
@@ -203,6 +212,11 @@ export const Vegas = React.forwardRef<{
 			setCurrentSlide(index);
 			onWalk?.();
 
+			// 如果是第一次切换，标记不再是第一次
+			if (isFirstTransition) {
+				setIsFirstTransition(false);
+			}
+
 			setTimeout(() => {
 				setIsTransitioning(false);
 				log("幻灯片切换动画完成");
@@ -212,16 +226,15 @@ export const Vegas = React.forwardRef<{
 
 	// 切换控制函数
 	const next = useCallback(() => {
-		setIsFirstTransition(false);
 		if (isTransitioning) {
 			log("正在切换中,跳过本次切换");
 			return;
 		}
 
-		let nextSlide = currentSlide + 1;
-		if (nextSlide >= slides.length) {
+		let nextOrderIndex = currentOrderIndex + 1;
+		if (nextOrderIndex >= slideOrder.length) {
 			if (loop) {
-				nextSlide = 0;
+				nextOrderIndex = 0;
 				log("到达最后一张,循环回到第一张");
 			} else {
 				log("到达最后一张,停止播放");
@@ -229,19 +242,23 @@ export const Vegas = React.forwardRef<{
 				return;
 			}
 		}
-		goTo(nextSlide);
-	}, [currentSlide, isTransitioning, slides.length, loop, goTo, pause]);
 
+		const nextSlideIndex = slideOrder[nextOrderIndex];
+		setCurrentOrderIndex(nextOrderIndex);
+		goTo(nextSlideIndex);
+	}, [currentOrderIndex, slideOrder, isTransitioning, loop, goTo, pause]);
+
+	// 上一个幻灯片
 	const previous = useCallback(() => {
 		if (isTransitioning) {
 			log("正在切换中,跳过本次切换");
 			return;
 		}
 
-		let prevSlide = currentSlide - 1;
-		if (prevSlide < 0) {
+		let prevOrderIndex = currentOrderIndex - 1;
+		if (prevOrderIndex < 0) {
 			if (loop) {
-				prevSlide = slides.length - 1;
+				prevOrderIndex = slideOrder.length - 1;
 				log("到达第一张,循环到最后一张");
 			} else {
 				log("到达第一张,停止播放");
@@ -249,8 +266,11 @@ export const Vegas = React.forwardRef<{
 				return;
 			}
 		}
-		goTo(prevSlide);
-	}, [currentSlide, isTransitioning, slides.length, loop, goTo, pause]);
+
+		const prevSlideIndex = slideOrder[prevOrderIndex];
+		setCurrentOrderIndex(prevOrderIndex);
+		goTo(prevSlideIndex);
+	}, [currentOrderIndex, slideOrder, isTransitioning, loop, goTo, pause]);
 
 	// 初始化
 	useEffect(() => {
@@ -262,8 +282,10 @@ export const Vegas = React.forwardRef<{
 				const j = Math.floor(Math.random() * (i + 1));
 				[order[i], order[j]] = [order[j], order[i]];
 			}
-			setCurrentSlide(order[0]);
-			setVisibleSlides([order[0]]);
+			const initialSlideIndex = order[0];
+			setCurrentSlide(initialSlideIndex);
+			setVisibleSlides([initialSlideIndex]);
+			setCurrentOrderIndex(0);
 			log("幻灯片随机排序完成:", order);
 			// 如果firstTransition存在，则修改第一个幻灯片的动画
 			if (firstTransition) {
@@ -271,6 +293,11 @@ export const Vegas = React.forwardRef<{
 				slides[order[0]].transition = firstTransition;
 				slides[order[0]].transitionDuration = firstTransitionDuration;
 			}
+		} else {
+			// 非随机排序，直接使用原始顺序
+			setCurrentSlide(slide);
+			setVisibleSlides([slide]);
+			setCurrentOrderIndex(slide);
 		}
 		setSlideOrder(order);
 
@@ -429,12 +456,6 @@ export const Vegas = React.forwardRef<{
 			const currentTransitionDurationValue = isFirstTransition ?
 				firstTransitionDuration : transitionDuration;
 
-			const handleLoad = () => {
-				setTimeout(() => {
-					setShowDefaultBg(false);
-				}, currentTransitionDurationValue);
-			};
-
 			const isImagePreloaded = preloadImage && loadedImages[slide.src];
 
 			const content = slide.video ? (
@@ -465,7 +486,7 @@ export const Vegas = React.forwardRef<{
 						backgroundPosition: `${slide.align || align} ${slide.valign || valign}`,
 						backgroundRepeat: "no-repeat"
 					}}
-					onLoad={!isImagePreloaded ? handleLoad : undefined}  // 如果已预加载则不需要处理加载事件
+					onLoad={!isImagePreloaded ? () => {} : undefined}
 					onError={() => {
 						logError(`图片加载失败: ${slide.src}`);
 					}}
@@ -582,7 +603,7 @@ export const Vegas = React.forwardRef<{
 						height: "3px",
 						background: "#fff",
 						width: slides.length > 1
-							? `${(currentSlide / (slides.length - 1)) * 100}%`
+							? `${(currentOrderIndex / (slides.length - 1)) * 100}%`
 							: "100%",
 						transition: "width 0.5s linear"
 					}}
