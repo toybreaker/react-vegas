@@ -3,6 +3,7 @@ import {VegasProps} from "./types";
 import {motion} from "motion/react";
 import {VegasLoader} from "./components/VegasLoader";
 import {VegasTimer} from "./components/VegasTimer";
+import {VegasOverlay} from "./components/VegasOverlay";
 
 type Logger = (message: string, ...args: unknown[]) => void;
 
@@ -534,16 +535,7 @@ export const Vegas = React.forwardRef<{
 
 			{/* 遮罩层 */}
 			{overlay && (
-				<div
-					style={{
-						position: "absolute",
-						top: 0,
-						left: 0,
-						width: "100%",
-						height: "100%",
-						background: "rgba(0,0,0,0.3)"
-					}}
-				/>
+				<VegasOverlay/>
 			)}
 
 			{/* 进度条 */}
