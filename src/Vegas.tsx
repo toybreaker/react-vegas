@@ -8,6 +8,7 @@ interface VegasProps {
 	loop?: boolean;                   // 是否循环播放
 	preload?: boolean;                // 是否预加载资源
 	preloadImage?: boolean;           // 是否预加载图片
+	preLoadImageBatch?: number;       // 批量预加载图片数量
 	preloadVideo?: boolean;           // 是否预加载视频
 	timer?: boolean;                  // 是否显示计时器
 	overlay?: boolean;                // 是否显示遮罩层
@@ -63,6 +64,7 @@ export const Vegas = React.forwardRef<{
 		loop = true,
 		preload = false,
 		preloadImage = false,
+		preLoadImageBatch = 3,
 		preloadVideo = false,
 		timer = true,
 		overlay = false,
@@ -104,6 +106,8 @@ export const Vegas = React.forwardRef<{
 	const [loading, setLoading] = useState(true);
 	const [showDefaultBg, setShowDefaultBg] = useState(true);
 	const [isFirstTransition, setIsFirstTransition] = useState(true);
+	const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+	const [loadProgress, setLoadProgress] = useState(0);
 
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -271,13 +275,12 @@ export const Vegas = React.forwardRef<{
 		// 预加载资源
 		if (preload) {
 			log("开始预加载资源");
+			setLoading(true);
+			setIsPlaying(false);
+			const preloadPromises: Promise<void>[] = [];
+
 			if (preloadImage) {
-				slides.forEach(slide => {
-					if (!slide.video) {
-						const img = new Image();
-						img.src = slide.src;
-					}
-				});
+				preloadPromises.push(batchPreloadImages());
 			}
 			if (preloadVideo) {
 				slides.forEach(slide => {
@@ -288,10 +291,24 @@ export const Vegas = React.forwardRef<{
 							link.as = "video";
 							link.href = src;
 							document.head.appendChild(link);
+							log(`预加载视频: ${src}`);
 						});
 					}
 				});
 			}
+
+			Promise.all(preloadPromises)
+			.then(() => {
+				log("所有资源预加载完成");
+				setLoading(false);
+				if (autoplay && !defaultBackground) {
+					play();
+				}
+			})
+			.catch(error => {
+				logError("预加载资源时发生错误:", error);
+				setLoading(false);
+			});
 		}
 
 		onInit?.();
@@ -357,6 +374,35 @@ export const Vegas = React.forwardRef<{
 		};
 	}, [play, pause]);
 
+	// 批量预加载图片
+	const batchPreloadImages = useCallback(async () => {
+		if (!preloadImage) return;
+
+		const batchSize = preLoadImageBatch;
+		const imageSlides = slides.filter(slide => !slide.video);
+
+		for (let i = 0; i < imageSlides.length; i += batchSize) {
+			const batch = imageSlides.slice(i, i + batchSize);
+			const promises = batch.map(slide => {
+				return new Promise<void>((resolve) => {
+					const img = new Image();
+					img.onload = () => {
+						setLoadedImages(prev => ({...prev, [slide.src]: true}));
+						resolve();
+					};
+					img.onerror = () => {
+						logWarn(`图片加载失败: ${slide.src}`);
+						resolve();
+					};
+					img.src = slide.src;
+				});
+			});
+
+			await Promise.all(promises);
+			setLoadProgress(Math.min(100, Math.floor(((i + batch.length) / imageSlides.length) * 100)));
+		}
+	}, [slides, preloadImage]);
+
 	// 渲染幻灯片
 	const renderSlide = useCallback((index: number) => {
 		try {
@@ -389,6 +435,8 @@ export const Vegas = React.forwardRef<{
 				}, currentTransitionDurationValue);
 			};
 
+			const isImagePreloaded = preloadImage && loadedImages[slide.src];
+
 			const content = slide.video ? (
 				<video
 					key={index}
@@ -417,7 +465,7 @@ export const Vegas = React.forwardRef<{
 						backgroundPosition: `${slide.align || align} ${slide.valign || valign}`,
 						backgroundRepeat: "no-repeat"
 					}}
-					onLoad={handleLoad}
+					onLoad={!isImagePreloaded ? handleLoad : undefined}  // 如果已预加载则不需要处理加载事件
 					onError={() => {
 						logError(`图片加载失败: ${slide.src}`);
 					}}
