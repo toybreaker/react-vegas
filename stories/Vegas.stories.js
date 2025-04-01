@@ -71,7 +71,7 @@ export const Default = {
 		firstTransitionDuration: 5000,
 		// 背景图片
 		defaultBackground: background,
-		// 第一次切换动画持续时间
+		// 默认背景显示时间
 		defaultBackgroundDuration: 3000,
 		// 背景颜色
 		color: '#000',
