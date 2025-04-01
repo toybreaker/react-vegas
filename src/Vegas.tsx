@@ -6,6 +6,7 @@ import {VegasTimer} from "./components/VegasTimer";
 import {VegasOverlay} from "./components/VegasOverlay";
 import {VegasDefaultBackground} from "./components/VegasDefaultBackground";
 import {VegasSlide} from "./components/VegasSlide";
+import {useLogger} from "./hooks/useLogger";
 import {useAnimationVariants} from "./hooks/useAnimationVariants";
 
 type Logger = (message: string, ...args: unknown[]) => void;
@@ -47,15 +48,6 @@ export const Vegas = React.forwardRef<{
 		onWalk
 	} = props;
 
-	// 日志工具函数
-	const createLogger = (type: 'log' | 'error' | 'warn'): Logger =>
-		debug ? console[type].bind(console) : () => {
-		};
-
-	const log = createLogger('log');
-	const logError = createLogger('error');
-	const logWarn = createLogger('warn');
-
 	// 状态管理
 	const [currentSlide, setCurrentSlide] = useState(slide);
 	const [isPlaying, setIsPlaying] = useState(autoplay);
@@ -69,6 +61,8 @@ export const Vegas = React.forwardRef<{
 	const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 	const [loadProgress, setLoadProgress] = useState(0);
 
+	// 日志函数
+	const { log, logWarn, logError } = useLogger(debug);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	// 动画变体配置
