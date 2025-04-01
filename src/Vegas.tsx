@@ -67,8 +67,8 @@ export const Vegas = React.forwardRef<{
 		preloadImage = false,
 		preLoadImageBatch = 3,
 		preloadVideo = false,
-		timer = true,
 		showLoading = false,
+		timer = false,
 		overlay = false,
 		autoplay = true,
 		shuffle = false,
@@ -105,7 +105,7 @@ export const Vegas = React.forwardRef<{
 	const [, setSlideOrder] = useState<number[]>([]);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 	const [visibleSlides, setVisibleSlides] = useState([slide]);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [showDefaultBg, setShowDefaultBg] = useState(true);
 	const [isFirstTransition, setIsFirstTransition] = useState(true);
 	const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
@@ -430,8 +430,6 @@ export const Vegas = React.forwardRef<{
 				firstTransitionDuration : transitionDuration;
 
 			const handleLoad = () => {
-				log(`内容加载完成: ${slide.src}`);
-				setLoading(false);
 				setTimeout(() => {
 					setShowDefaultBg(false);
 				}, currentTransitionDurationValue);
@@ -575,11 +573,11 @@ export const Vegas = React.forwardRef<{
 			)}
 
 			{/* 进度条 */}
-			{timer && (
+			{timer && isPlaying && (
 				<div
 					style={{
 						position: "absolute",
-						bottom: 0,
+						top: 0,
 						left: 0,
 						height: "3px",
 						background: "#fff",
