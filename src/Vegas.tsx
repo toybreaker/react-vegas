@@ -408,11 +408,15 @@ export const Vegas = React.forwardRef<{
 					))}
 				</video>
 			) : (
-				<img
+				<div
 					key={index}
-					src={slide.src}
-					style={style}
-					alt=""
+					style={{
+						...style,
+						backgroundImage: `url(${slide.src})`,
+						backgroundSize: slide.cover ?? cover ? "cover" : "contain",
+						backgroundPosition: `${slide.align || align} ${slide.valign || valign}`,
+						backgroundRepeat: "no-repeat"
+					}}
 					onLoad={handleLoad}
 					onError={() => {
 						logError(`图片加载失败: ${slide.src}`);
