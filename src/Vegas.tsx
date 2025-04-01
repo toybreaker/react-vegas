@@ -5,6 +5,7 @@ import {VegasLoader} from "./components/VegasLoader";
 import {VegasTimer} from "./components/VegasTimer";
 import {VegasOverlay} from "./components/VegasOverlay";
 import {VegasDefaultBackground} from "./components/VegasDefaultBackground";
+import {VegasSlide} from "./components/VegasSlide";
 
 type Logger = (message: string, ...args: unknown[]) => void;
 
@@ -518,9 +519,10 @@ export const Vegas = React.forwardRef<{
 
 			{/* 渲染幻灯片 */}
 			{isPlaying && (
-				<AnimatePresence mode="sync">
-					{visibleSlides.map(index => renderSlide(index))}
-				</AnimatePresence>
+				<VegasSlide
+					visibleSlides={visibleSlides}
+					renderSlide={renderSlide}
+				/>
 			)}
 
 			{/* 遮罩层 */}
