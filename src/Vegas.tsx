@@ -4,6 +4,7 @@ import {motion} from "motion/react";
 import {VegasLoader} from "./components/VegasLoader";
 import {VegasTimer} from "./components/VegasTimer";
 import {VegasOverlay} from "./components/VegasOverlay";
+import {VegasDefaultBackground} from "./components/VegasDefaultBackground";
 
 type Logger = (message: string, ...args: unknown[]) => void;
 
@@ -510,19 +511,8 @@ export const Vegas = React.forwardRef<{
 		>
 			{/* 默认背景图层 */}
 			{defaultBackground && showDefaultBg && (
-				<motion.div
-					initial={{opacity: 1}}
-					style={{
-						position: "absolute",
-						top: 0,
-						left: 0,
-						width: "100%",
-						height: "100%",
-						backgroundImage: `url(${defaultBackground})`,
-						backgroundSize: "cover",
-						backgroundPosition: "center",
-						zIndex: 0
-					}}
+				<VegasDefaultBackground
+					backgroundUrl={defaultBackground.toString()}
 				/>
 			)}
 
