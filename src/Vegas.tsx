@@ -6,6 +6,7 @@ import {VegasTimer} from "./components/VegasTimer";
 import {VegasOverlay} from "./components/VegasOverlay";
 import {VegasDefaultBackground} from "./components/VegasDefaultBackground";
 import {VegasSlide} from "./components/VegasSlide";
+import {useAnimationVariants} from "./hooks/useAnimationVariants";
 
 type Logger = (message: string, ...args: unknown[]) => void;
 
@@ -71,72 +72,7 @@ export const Vegas = React.forwardRef<{
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	// 动画变体配置
-	const variants = useMemo(() => ({
-		fade: (custom: { duration: number }) => ({
-			enter: {opacity: 1, transition: {duration: custom.duration}},
-			exit: {opacity: 0, transition: {duration: transitionDuration / 1000}}
-		}),
-		slideLeft: (custom: { duration: number }) => ({
-			enter: {
-				x: 0,
-				opacity: 1,
-				transition: {duration: custom.duration}
-			},
-			exit: {
-				x: "-100%",
-				opacity: 0,
-				transition: {duration: transitionDuration / 1000}
-			}
-		}),
-		slideRight: (custom: { duration: number }) => ({
-			enter: {
-				x: 0,
-				opacity: 1,
-				transition: {duration: custom.duration}
-			},
-			exit: {
-				x: "100%",
-				opacity: 0,
-				transition: {duration: transitionDuration / 1000}
-			}
-		}),
-		zoomIn: (custom: { duration: number }) => ({
-			enter: {
-				scale: 1,
-				opacity: 1,
-				transition: {duration: custom.duration}
-			},
-			exit: {
-				scale: 0.5,
-				opacity: 0,
-				transition: {duration: transitionDuration / 1000}
-			}
-		}),
-		zoomOut: (custom: { duration: number }) => ({
-			enter: {
-				scale: 1,
-				opacity: 1,
-				transition: {duration: custom.duration}
-			},
-			exit: {
-				scale: 1.25,
-				opacity: 0,
-				transition: {duration: transitionDuration / 1000}
-			}
-		}),
-		zoomInOut: (custom: { duration: number }) => ({
-			enter: {
-				scale: 1.25,
-				opacity: 1,
-				transition: {duration: custom.duration}
-			},
-			exit: {
-				scale: 1,
-				opacity: 0,
-				transition: {duration: transitionDuration / 1000}
-			}
-		})
-	}), [transitionDuration]);
+	const { variants } = useAnimationVariants(transitionDuration);
 
 	// 播放控制函数
 	const play = useCallback(() => {
