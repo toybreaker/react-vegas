@@ -10,7 +10,6 @@ import {useLogger} from "./hooks/useLogger";
 import {usePreload} from "./hooks/usePreload";
 import {useAnimationVariants} from "./hooks/useAnimationVariants";
 
-type Logger = (message: string, ...args: unknown[]) => void;
 
 export const Vegas = React.forwardRef<{
 	previous: () => void;
@@ -59,8 +58,6 @@ export const Vegas = React.forwardRef<{
 	const [, setLoading] = useState(false);
 	const [showDefaultBg, setShowDefaultBg] = useState(true);
 	const [isFirstTransition, setIsFirstTransition] = useState(true);
-	const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
-	const [loadProgress, setLoadProgress] = useState(0);
 
 	// 日志函数
 	const { log, logWarn, logError } = useLogger(debug);
@@ -348,7 +345,8 @@ export const Vegas = React.forwardRef<{
 						backgroundPosition: `${slide.align || align} ${slide.valign || valign}`,
 						backgroundRepeat: "no-repeat"
 					}}
-					onLoad={!isImagePreloaded ? () => {} : undefined}
+					onLoad={!isImagePreloaded ? () => {
+					} : undefined}
 					onError={() => {
 						logError(`图片加载失败: ${slide.src}`);
 					}}
