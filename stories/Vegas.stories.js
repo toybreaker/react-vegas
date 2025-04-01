@@ -12,9 +12,6 @@ const meta = {
 	],
 	parameters: {
 		layout: 'fullscreen',
-		viewport: {
-			defaultViewport: 'responsive',
-		}
 	}
 };
 
