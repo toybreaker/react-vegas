@@ -73,6 +73,18 @@ export const Default = {
 		defaultBackground: background,
 		// 第一次切换动画持续时间
 		defaultBackgroundDuration: 3000,
+		// 背景颜色
+		color: '#000',
+		// 启用预加载
+		preload: true,
+		// 预加载图片
+		preloadImage: true,
+		// 预加载视频
+		preloadVideo: false,
+		// 播放进度条
+		timer: true,
+		// 加载指示器
+		showLoading: true,
 		// 打印调试信息
 		debug: true
 	}
