@@ -10,6 +10,7 @@ import {useLogger} from "./hooks/useLogger";
 import {usePreload} from "./hooks/usePreload";
 import {useAnimationVariants} from "./hooks/useAnimationVariants";
 import {useVegasState} from "./hooks/useVegasState";
+import {useAutoplay} from "./hooks/useAutoplay";
 
 
 export const Vegas = React.forwardRef<{
@@ -110,12 +111,8 @@ export const Vegas = React.forwardRef<{
 		onPause?.();
 	}, [statePause, onPause]);
 
-	// 切换控制函数
-	const next = useCallback(() => {
-		if (isTransitioning) {
-			log("正在切换中,跳过本次切换");
-			return;
-		}
+	// 自动播放逻辑
+	useAutoplay(isPlaying, isTransitioning, currentSlide, slides, delay, next, log);
 
 		let nextOrderIndex = currentOrderIndex + 1;
 		if (nextOrderIndex >= slideOrder.length) {
@@ -255,39 +252,16 @@ export const Vegas = React.forwardRef<{
 		return cleanup;
 	}, []);
 
-	// 自动播放定时器
+	// 动画结束处理
 	useEffect(() => {
-		let timer: number;
-		if (isPlaying && !isTransitioning) {
-			const currentDelay = slides[currentSlide].delay || delay;
-			log(`设置自动播放定时器,延迟: ${currentDelay}ms`);
-			timer = window.setInterval(next, currentDelay);
+		if (isTransitioning) {
+			const timer = setTimeout(() => {
+				setIsTransitioning(false);
+				log("幻灯片切换动画完成");
+			}, transitionDuration);
+			return () => clearTimeout(timer);
 		}
-		return () => {
-			if (timer) {
-				log("清理自动播放定时器");
-				clearInterval(timer);
-			}
-		};
-	}, [isPlaying, currentSlide, isTransitioning, next]);
-
-	// 页面可见性变化处理
-	useEffect(() => {
-		const handleVisibilityChange = () => {
-			if (document.hidden) {
-				log("页面隐藏，暂停播放幻灯片");
-				pause();
-			} else {
-				log("页面可见，继续播放幻灯片");
-				play();
-			}
-		};
-
-		document.addEventListener("visibilitychange", handleVisibilityChange);
-		return () => {
-			document.removeEventListener("visibilitychange", handleVisibilityChange);
-		};
-	}, [play, pause]);
+	}, [isTransitioning, transitionDuration]);
 
 	// 渲染幻灯片
 	const renderSlide = useCallback((index: number) => {
