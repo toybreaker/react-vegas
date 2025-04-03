@@ -122,67 +122,14 @@ export const Vegas = React.forwardRef<{
 	useEffect(() => {
 		log("Vegas组件开始初始化");
 
-		const order = Array.from({length: slides.length}, (_, i) => i);
-		if (shuffle) {
-			for (let i = order.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[order[i], order[j]] = [order[j], order[i]];
-			}
-			const initialSlideIndex = order[0];
-			setCurrentSlide(initialSlideIndex);
-			setVisibleSlides([initialSlideIndex]);
-			setCurrentOrderIndex(0);
-			log("幻灯片随机排序完成:", order);
-			// 如果firstTransition存在，则修改第一个幻灯片的动画
-			if (firstTransition) {
-				log(`设置第一个幻灯片的动画: ${firstTransition}`);
-				slides[order[0]].transition = firstTransition;
-				slides[order[0]].transitionDuration = firstTransitionDuration;
-			}
-		} else {
-			// 非随机排序，直接使用原始顺序
-			setCurrentSlide(slide);
-			setVisibleSlides([slide]);
-			setCurrentOrderIndex(slide);
-		}
-		setSlideOrder(order);
-
 		// 预加载资源
 		if (preload) {
 			log("开始预加载资源");
-			setLoading(true);
 			setIsPlaying(false);
-			const preloadPromises: Promise<void>[] = [];
-
-			if (preloadImage) {
-				preloadPromises.push(batchPreloadImages());
-			}
-			if (preloadVideo) {
-				slides.forEach(slide => {
-					if (slide.video) {
-						slide.video.src.forEach(src => {
-							const link = document.createElement("link");
-							link.rel = "preload";
-							link.as = "video";
-							link.href = src;
-							document.head.appendChild(link);
-							log(`预加载视频: ${src}`);
-						});
-					}
-				});
-			}
-
-			Promise.all(preloadPromises)
-			.then(() => {
-				log("所有资源预加载完成");
-				setLoading(false);
+			batchPreloadImages().then(() => {
 				if (autoplay && !defaultBackground) {
 					play();
 				}
-			})
-			.catch(error => {
-				logError("预加载资源时发生错误:", error);
-				setLoading(false);
 			});
 		}
 
