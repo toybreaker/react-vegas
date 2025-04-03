@@ -9,6 +9,7 @@ import {VegasSlide} from "./components/VegasSlide";
 import {useLogger} from "./hooks/useLogger";
 import {usePreload} from "./hooks/usePreload";
 import {useAnimationVariants} from "./hooks/useAnimationVariants";
+import {useVegasState} from "./hooks/useVegasState";
 
 
 export const Vegas = React.forwardRef<{
@@ -49,15 +50,8 @@ export const Vegas = React.forwardRef<{
 	} = props;
 
 	// 状态管理
-	const [currentSlide, setCurrentSlide] = useState(slide);
-	const [isPlaying, setIsPlaying] = useState(autoplay);
-	const [slideOrder, setSlideOrder] = useState<number[]>([]);
-	const [currentOrderIndex, setCurrentOrderIndex] = useState(0);
 	const [isTransitioning, setIsTransitioning] = useState(false);
-	const [visibleSlides, setVisibleSlides] = useState([slide]);
-	const [, setLoading] = useState(false);
 	const [showDefaultBg, setShowDefaultBg] = useState(true);
-	const [isFirstTransition, setIsFirstTransition] = useState(true);
 
 	// 日志函数
 	const { log, logWarn, logError } = useLogger(debug);
@@ -70,10 +64,35 @@ export const Vegas = React.forwardRef<{
 	// 动画变体配置
 	const { variants } = useAnimationVariants(transitionDuration);
 
-	// 播放控制函数
+	// 幻灯片状态管理
+	const vegasState = useVegasState(
+		slide,
+		slides,
+		loop,
+		shuffle,
+		isTransitioning,
+		firstTransition,
+		firstTransitionDuration,
+		log,
+		onWalk
+	);
+
+	const {
+		currentSlide,
+		isPlaying,
+		setIsPlaying,
+		visibleSlides,
+		isFirstTransition,
+		setIsFirstTransition,
+		play: statePlay,
+		pause: statePause,
+		next,
+		previous,
+	} = vegasState;
+
+	// 播放控制函
 	const play = useCallback(() => {
-		log("开始播放幻灯片");
-		setIsPlaying(true);
+		statePlay();
 		if (isFirstTransition && showDefaultBg) {
 			logWarn("默认背景显示中，等待动画完成");
 			setTimeout(() => {
@@ -83,34 +102,13 @@ export const Vegas = React.forwardRef<{
 			setIsFirstTransition(false);
 		}
 		onPlay?.();
-	}, [onPlay]);
+	}, [statePlay, isFirstTransition, showDefaultBg, onPlay]);
 
+	// 暂停控制函数
 	const pause = useCallback(() => {
-		log("暂停播放幻灯片");
-		setIsPlaying(false);
+		statePause();
 		onPause?.();
-	}, [onPause]);
-
-	// 切换到指定幻灯片
-	const goTo = useCallback((index: number) => {
-		if (index >= 0 && index < slides.length && !isTransitioning) {
-			log(`切换到幻灯片: ${index}`);
-			setIsTransitioning(true);
-			setVisibleSlides([index]);
-			setCurrentSlide(index);
-			onWalk?.();
-
-			// 如果是第一次切换，标记不再是第一次
-			if (isFirstTransition) {
-				setIsFirstTransition(false);
-			}
-
-			setTimeout(() => {
-				setIsTransitioning(false);
-				log("幻灯片切换动画完成");
-			}, transitionDuration);
-		}
-	}, [slides.length, isTransitioning, transitionDuration, onWalk]);
+	}, [statePause, onPause]);
 
 	// 切换控制函数
 	const next = useCallback(() => {
