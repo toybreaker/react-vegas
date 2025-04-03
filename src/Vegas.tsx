@@ -372,7 +372,7 @@ export const Vegas = React.forwardRef<{
 			{/* 进度条 */}
 			{timer && isPlaying && (
 				<VegasTimer
-					currentOrderIndex={currentOrderIndex} totalSlides={slides.length}
+					currentOrderIndex={vegasState.currentOrderIndex} totalSlides={slides.length}
 				/>
 			)}
 
