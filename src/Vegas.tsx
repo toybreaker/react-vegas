@@ -1,6 +1,5 @@
-import React, {useEffect, useRef, useState, useCallback} from "react";
+import {useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef} from "react";
 import {VegasProps} from "./types";
-import {motion} from "motion/react";
 import {VegasLoader} from "./components/VegasLoader";
 import {VegasTimer} from "./components/VegasTimer";
 import {VegasOverlay} from "./components/VegasOverlay";
@@ -15,7 +14,8 @@ import {useAutoplay} from "./hooks/useAutoplay";
 import {useVisibilityChange} from "./hooks/useVisibilityChange";
 
 
-export const Vegas = React.forwardRef<{
+// Vegas主组件
+export const Vegas = forwardRef<{
 	previous: () => void;
 	next: () => void;
 	play: () => void;
@@ -57,15 +57,15 @@ export const Vegas = React.forwardRef<{
 	const [showDefaultBg, setShowDefaultBg] = useState(true);
 
 	// 日志函数
-	const { log, logWarn, logError } = useLogger(debug);
+	const {log, logWarn, logError} = useLogger(debug);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	// 预加载资源
-	const { loading, loadProgress, loadedImages, batchPreloadImages } =
+	const {loading, loadProgress, loadedImages, batchPreloadImages} =
 		usePreload(slides, preloadImage, preloadVideo, preLoadImageBatch, log, logWarn, logError);
 
 	// 动画变体配置
-	const { variants } = useAnimationVariants(transitionDuration);
+	const {variants} = useAnimationVariants(transitionDuration);
 
 	// 幻灯片状态管理
 	const vegasState = useVegasState(
@@ -210,8 +210,9 @@ export const Vegas = React.forwardRef<{
 	}, [next, variants, transition, color, cover, align, valign, isFirstTransition,
 		firstTransitionDuration, transitionDuration]);
 
+
 	// 暴露组件实例方法
-	React.useImperativeHandle(ref, () => ({
+	useImperativeHandle(ref, () => ({
 		previous,
 		next,
 		play,
