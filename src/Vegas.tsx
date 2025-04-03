@@ -5,6 +5,7 @@ import {VegasLoader} from "./components/VegasLoader";
 import {VegasTimer} from "./components/VegasTimer";
 import {VegasOverlay} from "./components/VegasOverlay";
 import {VegasDefaultBackground} from "./components/VegasDefaultBackground";
+import {VegasSlideRenderer} from "./components/VegasSlideRenderer";
 import {VegasSlide} from "./components/VegasSlide";
 import {useLogger} from "./hooks/useLogger";
 import {usePreload} from "./hooks/usePreload";
@@ -182,82 +183,25 @@ export const Vegas = React.forwardRef<{
 				return null;
 			}
 
-			const currentTransition = slide.transition || transition;
-			const style: React.CSSProperties = {
-				position: "absolute",
-				top: 0,
-				left: 0,
-				width: "100%",
-				height: "100%",
-				backgroundColor: slide.color || color || undefined,
-				objectFit: slide.cover ?? cover ? "cover" : "contain",
-				objectPosition: `${slide.align || align} ${slide.valign || valign}`
-			};
-
-			const currentTransitionDurationValue = isFirstTransition ?
-				firstTransitionDuration : transitionDuration;
-
-			const isImagePreloaded = preloadImage && loadedImages[slide.src];
-
-			const content = slide.video ? (
-				<video
-					key={index}
-					style={style}
-					autoPlay
-					muted={slide.video.muted}
-					loop={slide.video.loop}
-					onEnded={() => {
-						if (!slide.video?.loop) {
-							log("视频播放结束,切换到下一张");
-							next();
-						}
-					}}
-				>
-					{slide.video.src.map((src, i) => (
-						<source key={i} src={src}/>
-					))}
-				</video>
-			) : (
-				<div
-					key={index}
-					style={{
-						...style,
-						backgroundImage: `url(${slide.src})`,
-						backgroundSize: slide.cover ?? cover ? "cover" : "contain",
-						backgroundPosition: `${slide.align || align} ${slide.valign || valign}`,
-						backgroundRepeat: "no-repeat"
-					}}
-					onLoad={!isImagePreloaded ? () => {
-					} : undefined}
-					onError={() => {
-						logError(`图片加载失败: ${slide.src}`);
-					}}
-				/>
-			);
-
-			const variant = variants[currentTransition as keyof typeof variants] || variants.fade;
-
-			log(`渲染幻灯片: ${slide.src}, 动画: ${currentTransition}, 持续时间: ${currentTransitionDurationValue}ms`);
-
 			return (
-				<motion.div
-					key={slide.src}
-					initial="exit"
-					animate="enter"
-					exit="exit"
-					variants={
-						currentTransition in variants
-							? variant({duration: currentTransitionDurationValue / 1000})
-							: variant({duration: transitionDuration / 1000})
-					}
-					style={{
-						position: "absolute",
-						width: "100%",
-						height: "100%"
-					}}
-				>
-					{content}
-				</motion.div>
+				<VegasSlideRenderer
+					slide={slide}
+					index={index}
+					isFirstTransition={isFirstTransition}
+					firstTransitionDuration={firstTransitionDuration}
+					transitionDuration={transitionDuration}
+					transition={transition}
+					cover={cover}
+					align={align}
+					valign={valign}
+					color={color}
+					variants={variants}
+					preloadImage={preloadImage}
+					loadedImages={loadedImages}
+					next={next}
+					log={log}
+					logError={logError}
+				/>
 			);
 		} catch (error) {
 			logError("渲染幻灯片时发生错误:", error);
