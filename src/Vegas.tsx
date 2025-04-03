@@ -11,6 +11,7 @@ import {usePreload} from "./hooks/usePreload";
 import {useAnimationVariants} from "./hooks/useAnimationVariants";
 import {useVegasState} from "./hooks/useVegasState";
 import {useAutoplay} from "./hooks/useAutoplay";
+import {useVisibilityChange} from "./hooks/useVisibilityChange";
 
 
 export const Vegas = React.forwardRef<{
@@ -114,46 +115,8 @@ export const Vegas = React.forwardRef<{
 	// 自动播放逻辑
 	useAutoplay(isPlaying, isTransitioning, currentSlide, slides, delay, next, log);
 
-		let nextOrderIndex = currentOrderIndex + 1;
-		if (nextOrderIndex >= slideOrder.length) {
-			if (loop) {
-				nextOrderIndex = 0;
-				log("到达最后一张,循环回到第一张");
-			} else {
-				log("到达最后一张,停止播放");
-				pause();
-				return;
-			}
-		}
-
-		const nextSlideIndex = slideOrder[nextOrderIndex];
-		setCurrentOrderIndex(nextOrderIndex);
-		goTo(nextSlideIndex);
-	}, [currentOrderIndex, slideOrder, isTransitioning, loop, goTo, pause]);
-
-	// 上一个幻灯片
-	const previous = useCallback(() => {
-		if (isTransitioning) {
-			log("正在切换中,跳过本次切换");
-			return;
-		}
-
-		let prevOrderIndex = currentOrderIndex - 1;
-		if (prevOrderIndex < 0) {
-			if (loop) {
-				prevOrderIndex = slideOrder.length - 1;
-				log("到达第一张,循环到最后一张");
-			} else {
-				log("到达第一张,停止播放");
-				pause();
-				return;
-			}
-		}
-
-		const prevSlideIndex = slideOrder[prevOrderIndex];
-		setCurrentOrderIndex(prevOrderIndex);
-		goTo(prevSlideIndex);
-	}, [currentOrderIndex, slideOrder, isTransitioning, loop, goTo, pause]);
+	// 页面可见性变化处理
+	useVisibilityChange(play, pause, log);
 
 	// 初始化
 	useEffect(() => {
