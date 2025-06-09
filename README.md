@@ -1,23 +1,24 @@
-# React Vegas 幻灯片组件
+# React Vegas Slideshow
 
-参考 [Vegas Background SlideShow](https://github.com/jaysalvat/vegas) 实现的React组件，提供强大灵活的幻灯片展示功能，支持图片和视频，具有平滑过渡效果和可定制化功能。
+A React implementation of the [Vegas Background SlideShow](https://github.com/jaysalvat/vegas), providing a powerful and
+flexible slideshow component that supports images and videos with smooth transitions and customizable effects.
 
-简体中文 | [English](./README.EN.md)
+English | [简体中文](./README.md)
 
-## 功能特性
+## Features
 
-- 🖼️ 支持图片和视频
-- 🎬 多种过渡效果
-- 🔄 可配置间隔时间的自动播放
-- 🎯 自定义对齐方式
-- 🔀 随机播放模式
-- ⚡ 预加载功能
-- 📱 响应式设计
-- 🎨 可定制的遮罩层和进度条
-- 🎮 手动控制功能
-- 🎯 TypeScript 支持
+- 🖼️ Support for both images and videos
+- 🎬 Multiple transition effects
+- 🔄 Auto-play with configurable delays
+- 🎯 Custom alignment options
+- 🔀 Random/shuffle play mode
+- ⚡ Preloading capabilities
+- 📱 Responsive design
+- 🎨 Customizable overlay and timer
+- 🎮 Manual control options
+- 🎯 TypeScript support
 
-## 安装说明
+## Installation
 
 npm
 
@@ -37,7 +38,7 @@ pnpm
 pnpm add react-vegas
 ```
 
-## 基础用法
+## Basic Usage
 
 ```tsx
 import {Vegas} from "react-vegas";
@@ -64,160 +65,159 @@ const App = () => {
 };
 ```
 
-## 高级用法
+## Advanced Usage
 
 ```tsx
 const slides = [
 	{
 		src: '/images/slide1.jpg',
-		align: 'center',                        // 水平对齐
-		valign: 'center',                       // 垂直对齐
-		transition: 'fade',                     // 过渡效果
-		transitionDuration: 2000,               // 过渡时长
-		delay: 5000                             // 本页停留时间
+		align: 'center',
+		valign: 'center',
+		transition: 'fade',
+		transitionDuration: 2000,
+		delay: 5000
 	},
 	{
 		src: '/videos/video1.mp4',
 		video: {
-			src: [                                // 多格式支持
+			src: [
 				'/videos/video1.mp4',
 				'/videos/video1.webm'
 			],
-			muted: true,                          // 静音播放
-			loop: false                           // 是否循环
+			muted: true,
+			loop: false
 		},
-		transition: 'zoomIn'                    // 缩放进入效果
+		transition: 'zoomIn'
 	}
 ];
 
 <Vegas
 	slides={slides}
-	autoplay={true}                           // 启用自动播放
-	overlay={true}                            // 启用遮罩层
-	timer={false}                             // 隐藏进度条
-	delay={7000}                              // 全局停留时间
-	shuffle={true}                            // 随机播放
-	transitionDuration={3000}                 // 全局过渡时长
-	firstTransitionDuration={5000}            // 初始过渡时长
-	defaultBackground="/images/loading.jpg"   // 加载背景图
-	defaultBackgroundDelay={2000}             // 加载背景显示时间
-	debug={false}                             // 调试模式
-	color="#000"                              // 背景色
+	overlay={true}
+	timer={false}
+	delay={7000}
+	shuffle={true}
+	transitionDuration={3000}
+	firstTransitionDuration={5000}
+	defaultBackground="/images/loading.jpg"
+	defaultBackgroundDelay={2000}
+	debug={true}
+	color="#000"
 />
 ```
 
-## 组件属性
+## Props
 
-### 基础属性
+### Basic Props
 
-| 属性       | 类型      | 默认值   | 说明          |
-|----------|---------|-------|-------------|
-| slides   | Array   | 必填    | 幻灯片对象数组     |
-| delay    | number  | 5000  | 幻灯片切换间隔(毫秒) |
-| autoplay | boolean | true  | 启用自动播放      |
-| loop     | boolean | true  | 循环播放        |
-| shuffle  | boolean | false | 随机播放顺序      |
+| Prop     | Type    | Default  | Description               |
+|----------|---------|----------|---------------------------|
+| slides   | Array   | Required | Array of slide objects    |
+| delay    | number  | 5000     | Delay between slides (ms) |
+| autoplay | boolean | true     | Enable automatic playback |
+| loop     | boolean | true     | Enable continuous loop    |
+| shuffle  | boolean | false    | Randomize slide order     |
 
-### 过渡效果
+### Transition Props
 
-| 属性                      | 类型     | 默认值    | 说明         |
-|-------------------------|--------|--------|------------|
-| transition              | string | 'fade' | 过渡效果类型     |
-| transitionDuration      | number | 1000   | 过渡时长(毫秒)   |
-| firstTransitionDuration | number | 3000   | 初始过渡时长(毫秒) |
+| Prop                    | Type   | Default | Description                    |
+|-------------------------|--------|---------|--------------------------------|
+| transition              | string | 'fade'  | Transition effect type         |
+| transitionDuration      | number | 1000    | Transition duration (ms)       |
+| firstTransitionDuration | number | 3000    | First transition duration (ms) |
 
-### 视觉属性
+### Visual Props
 
-| 属性      | 类型      | 默认值   | 说明     |
-|---------|---------|-------|--------|
-| overlay | boolean | false | 显示遮罩层  |
-| timer   | boolean | true  | 显示进度条  |
-| color   | string  | null  | 背景颜色   |
-| cover   | boolean | true  | 图片覆盖模式 |
+| Prop    | Type    | Default | Description           |
+|---------|---------|---------|-----------------------|
+| overlay | boolean | false   | Show overlay layer    |
+| timer   | boolean | true    | Show progress timer   |
+| color   | string  | null    | Background color      |
+| cover   | boolean | true    | Cover mode for images |
 
-### 加载配置
+### Loading Props
 
-| 属性                     | 类型      | 默认值       | 说明       |
-|------------------------|---------|-----------|----------|
-| preload                | boolean | false     | 启用资源预加载  |
-| preloadImage           | boolean | false     | 预加载图片    |
-| preloadVideo           | boolean | false     | 预加载视频    |
-| defaultBackground      | string  | undefined | 加载背景图    |
-| defaultBackgroundDelay | number  | 2000      | 加载背景显示时长 |
+| Prop                   | Type    | Default   | Description                 |
+|------------------------|---------|-----------|-----------------------------|
+| preload                | boolean | false     | Enable resource preloading  |
+| preloadImage           | boolean | false     | Preload images              |
+| preloadVideo           | boolean | false     | Preload videos              |
+| defaultBackground      | string  | undefined | Loading background image    |
+| defaultBackgroundDelay | number  | 2000      | Loading background duration |
 
-### 回调函数
+### Callback Props
 
-| 属性      | 类型         | 说明       |
-|---------|------------|----------|
-| onInit  | () => void | 初始化完成时触发 |
-| onPlay  | () => void | 播放开始时触发  |
-| onPause | () => void | 暂停时触发    |
-| onWalk  | () => void | 幻灯片切换时触发 |
+| Prop    | Type       | Description                  |
+|---------|------------|------------------------------|
+| onInit  | () => void | Called after initialization  |
+| onPlay  | () => void | Called when slideshow starts |
+| onPause | () => void | Called when slideshow pauses |
+| onWalk  | () => void | Called on slide change       |
 
-## 幻灯片对象属性
+## Slide Object Properties
 
 ```typescript
 interface Slide {
-	src: string;                            // 资源路径
-	color?: string;                         // 背景色
-	delay?: number;                         // 单独设置停留时间
-	align?: 'left' | 'center' | 'right';    // 水平对齐
-	valign?: 'top' | 'center' | 'bottom';   // 垂直对齐
-	transition?: string;                    // 单独过渡效果
-	transitionDuration?: number;            // 单独过渡时长
-	cover?: boolean;                        // 是否覆盖模式
-	video?: {                               // 视频配置
-		src: string[];                      // 多格式源
-		muted?: boolean;                    // 静音
-		loop?: boolean;                     // 循环
+	src: string;                      // Image/video source URL
+	color?: string;                   // Slide background color
+	delay?: number;                   // Individual slide delay
+	align?: 'left' | 'center' | 'right';  // Horizontal alignment
+	valign?: 'top' | 'center' | 'bottom'; // Vertical alignment
+	transition?: string;              // Individual transition
+	transitionDuration?: number;      // Individual transition duration
+	cover?: boolean;                  // Cover mode
+	video?: {                        // Video specific options
+		src: string[];                 // Multiple format sources
+		muted?: boolean;               // Mute video
+		loop?: boolean;                // Loop video
 	};
 }
 ```
 
-## 可用过渡效果
+## Available Transitions
 
-- `fade`: 淡入淡出
-- `slideLeft`: 左滑进入
-- `slideRight`: 右滑进入
-- `zoomIn`: 放大进入
-- `zoomOut`: 缩小退出
-- `zoomInOut`: 组合缩放
+- `fade`: Fade in/out
+- `slideLeft`: Slide from left
+- `slideRight`: Slide from right
+- `zoomIn`: Zoom in effect
+- `zoomOut`: Zoom out effect
+- `zoomInOut`: Combined zoom effect
 
-## 组件方法
+## Component Methods
 
-通过ref可调用以下方法：
+You can access the following methods using a ref:
 
 ```tsx
 const vegasRef = useRef();
 
-// 可用方法
-vegasRef.current.play();        // 开始播放
-vegasRef.current.pause();       // 暂停播放
-vegasRef.current.next();        // 下一张
-vegasRef.current.previous();    // 上一张
+// Available methods
+vegasRef.current.play();    // Start slideshow
+vegasRef.current.pause();   // Pause slideshow
+vegasRef.current.next();    // Go to next slide
+vegasRef.current.previous(); // Go to previous slide
 ```
 
-## 浏览器支持
+## Browser Support
 
-- Chrome (最新版)
-- Firefox (最新版)
-- Safari (最新版)
-- Edge (最新版)
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
 
-## 性能优化建议
+## Performance Tips
 
-1. 使用前优化图片体积
-2. 选择合适的视频格式和分辨率
-3. 启用预加载提升性能
-4. 推荐使用WebP格式图片
-5. 适当压缩视频文件
+1. Optimize your images before use
+2. Use appropriate video formats and resolutions
+3. Enable preloading for better performance
+4. Consider using WebP format for images
+5. Compress videos appropriately
 
-## 已知问题
+## Known Issues
 
-- 部分浏览器需用户交互后才允许视频自动播放
-- Safari对某些视频格式支持有限
+- Video autoplay might be blocked in some browsers without user interaction
+- Safari has limited support for some video formats
 
-## 致谢
+## Credits
 
-本组件灵感来源于Jay Salvat开发的[jQuery版Vegas背景轮播插件](https://github.com/jaysalvat/vegas)
-，使用React和TypeScript进行了现代化重构。
+This component is inspired by [Vegas Background SlideShow](https://github.com/jaysalvat/vegas) jQuery plugin by Jay
+Salvat. It has been reimplemented in React with TypeScript support and modern web features.
